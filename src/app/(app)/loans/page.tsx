@@ -42,7 +42,6 @@ export default async function LoansPage({
     <div>
       <h1>Sách đã mượn</h1>
 
-      {/* Form gửi yêu cầu chỉ hiện với student */}
       {viewer.role === 'student' && (
         <LoanForm
           books={db.books}
@@ -51,66 +50,67 @@ export default async function LoansPage({
         />
       )}
 
-      {/* Form lọc */}
-      <div style={{ margin: '1.5rem 0' }}>
-        <form method="GET" action="/loans" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+      {/* Bộ lọc */}
+      <div className="card" style={{ padding: '1rem', marginBottom: '1.5rem' }}>
+        <form method="GET" action="/loans" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           {book && <input type="hidden" name="book" value={book} />}
-          <label htmlFor="filter-status" style={{ fontWeight: 500 }}>
+          <label htmlFor="filter-status" className="form-label" style={{ marginBottom: 0 }}>
             Trạng thái
           </label>
-          <select id="filter-status" name="status" defaultValue={status} style={{ padding: '0.4rem' }}>
+          <select id="filter-status" name="status" defaultValue={status} className="form-select" style={{ maxWidth: '200px' }}>
             <option value="">Tất cả</option>
             <option value="pending">Chờ duyệt</option>
             <option value="approved">Đã duyệt</option>
             <option value="rejected">Từ chối</option>
           </select>
-          <button type="submit" style={{ padding: '0.4rem 0.8rem', cursor: 'pointer' }}>
+          <button type="submit" className="btn-primary" style={{ padding: '0.6rem 1.2rem' }}>
             Lọc
           </button>
         </form>
       </div>
 
-      {/* Bảng danh sách */}
       {loansResult.items.length === 0 ? (
-        <p>Không có yêu cầu mượn nào</p>
+        <div className="card" style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748b' }}>
+          <p style={{ fontSize: '1.1rem' }}>Không có yêu cầu mượn nào</p>
+        </div>
       ) : (
-        <table border={1} cellPadding={8} style={{ borderCollapse: 'collapse', width: '100%', marginBottom: '1.5rem' }}>
+        <table className="custom-table" style={{ marginBottom: '1.5rem' }}>
           <thead>
             <tr>
               <th align="left">Tên sách</th>
               <th align="left">Ngày lấy</th>
               <th align="left">Thời hạn</th>
-              <th align="left">Số quyển</th>
-              <th align="left">Trạng thái</th>
-              {viewer.role === 'student' && <th align="left">Thao tác</th>}
+              <th align="center">Số quyển</th>
+              <th align="center">Trạng thái</th>
+              {viewer.role === 'student' && <th align="center">Thao tác</th>}
             </tr>
           </thead>
           <tbody>
             {loansResult.items.map((loan) => {
               const cancelAction = cancelLoanAction.bind(null, loan.id);
+              const badgeClass =
+                loan.status === 'approved'
+                  ? 'badge-approved'
+                  : loan.status === 'rejected'
+                  ? 'badge-rejected'
+                  : 'badge-pending';
 
               return (
                 <tr key={loan.id}>
-                  <td>{loan.bookTitle}</td>
+                  <td style={{ fontWeight: 600 }}>{loan.bookTitle}</td>
                   <td>{formatDate(loan.pickupDate)}</td>
                   <td>{TERM_LABEL[loan.term]}</td>
-                  <td>{loan.quantity} quyển</td>
-                  <td>{STATUS_LABEL[loan.status]}</td>
+                  <td align="center">{loan.quantity} quyển</td>
+                  <td align="center">
+                    <span className={`badge-status ${badgeClass}`}>
+                      {STATUS_LABEL[loan.status]}
+                    </span>
+                  </td>
                   {viewer.role === 'student' && (
-                    <td>
+                    <td align="center">
                       {loan.status === 'pending' && loan.userEmail === viewer.email && (
                         <form action={cancelAction}>
-                          <button
-                            type="submit"
-                            style={{
-                              background: '#ef4444',
-                              color: 'white',
-                              border: 'none',
-                              padding: '0.25rem 0.5rem',
-                              borderRadius: '3px',
-                              cursor: 'pointer',
-                            }}
-                          >
+                          <button type="submit" className="btn-danger-outline">
                             Hủy
                           </button>
                         </form>
@@ -125,31 +125,31 @@ export default async function LoansPage({
       )}
 
       {/* Phân trang */}
-      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+      <div className="pagination">
         {loansResult.page > 1 ? (
           <Link
             href={`/loans?status=${encodeURIComponent(status)}&page=${loansResult.page - 1}${book ? `&book=${book}` : ''}`}
-            style={{ color: 'blue', textDecoration: 'underline' }}
+            className="pagination-link"
           >
             Trước
           </Link>
         ) : (
-          <span style={{ color: '#999' }}>Trước</span>
+          <span className="pagination-disabled">Trước</span>
         )}
 
-        <span>
+        <span style={{ color: '#475569', fontWeight: 600 }}>
           Trang {loansResult.page}/{loansResult.totalPages}
         </span>
 
         {loansResult.page < loansResult.totalPages ? (
           <Link
             href={`/loans?status=${encodeURIComponent(status)}&page=${loansResult.page + 1}${book ? `&book=${book}` : ''}`}
-            style={{ color: 'blue', textDecoration: 'underline' }}
+            className="pagination-link"
           >
             Sau
           </Link>
         ) : (
-          <span style={{ color: '#999' }}>Sau</span>
+          <span className="pagination-disabled">Sau</span>
         )}
       </div>
     </div>

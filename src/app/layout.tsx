@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     default: 'Thư viện khoa CNTT',
     template: '%s | Thư viện khoa',
   },
-  description: 'Hệ thống quản lý mượn sách Thư viện khoa CNTT',
+  description: 'Hệ thống tra cứu và đăng ký mượn sách Thư viện khoa CNTT PTIT',
 };
 
 export default function RootLayout({
@@ -23,7 +23,7 @@ export default function RootLayout({
       <body>
         <Providers>
           <Header />
-          <main style={{ padding: '1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
+          <main className="main-wrapper">
             {children}
           </main>
         </Providers>

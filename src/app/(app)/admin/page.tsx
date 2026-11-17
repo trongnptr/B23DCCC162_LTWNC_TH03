@@ -14,7 +14,6 @@ export default async function AdminPage() {
   const session = await auth();
   const role = session?.user?.role;
 
-  // Kiểm tra lại quyền bằng can() ngay trong trang (phòng khi proxy cấu hình sai)
   if (!can(role, 'loan:view-all') || !can(role, 'loan:review')) {
     redirect('/forbidden');
   }
@@ -29,21 +28,51 @@ export default async function AdminPage() {
     <div>
       <h1>Duyệt yêu cầu mượn</h1>
 
-      <div style={{ marginBottom: '1rem', fontWeight: 500 }}>
+      {/* Thống kê dạng Card */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div className="card" style={{ padding: '1rem 1.25rem', borderLeft: '4px solid var(--warning)' }}>
+          <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>CHỜ DUYỆT</div>
+          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--warning)', marginTop: '0.25rem' }}>
+            {pendingCount}
+          </div>
+        </div>
+
+        <div className="card" style={{ padding: '1rem 1.25rem', borderLeft: '4px solid var(--success)' }}>
+          <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>ĐÃ DUYỆT</div>
+          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--success)', marginTop: '0.25rem' }}>
+            {approvedCount}
+          </div>
+        </div>
+
+        <div className="card" style={{ padding: '1rem 1.25rem', borderLeft: '4px solid var(--danger)' }}>
+          <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>TỪ CHỐI</div>
+          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--danger)', marginTop: '0.25rem' }}>
+            {rejectedCount}
+          </div>
+        </div>
+      </div>
+
+      <div className="card" style={{ display: 'none' }}>
+        Chờ duyệt: {pendingCount} | Đã duyệt: {approvedCount} | Từ chối: {rejectedCount}
+      </div>
+
+      <div style={{ marginBottom: '1rem', fontWeight: 600, color: '#334155' }}>
         Chờ duyệt: {pendingCount} | Đã duyệt: {approvedCount} | Từ chối: {rejectedCount}
       </div>
 
       {pendingLoans.length === 0 ? (
-        <p>Không có yêu cầu nào đang chờ duyệt</p>
+        <div className="card" style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748b' }}>
+          <p style={{ fontSize: '1.1rem' }}>Không có yêu cầu nào đang chờ duyệt</p>
+        </div>
       ) : (
-        <table border={1} cellPadding={8} style={{ borderCollapse: 'collapse', width: '100%' }}>
+        <table className="custom-table">
           <thead>
             <tr>
               <th align="left">Tên sách</th>
               <th align="left">Ngày lấy</th>
               <th align="left">Thời hạn</th>
               <th align="left">Người mượn</th>
-              <th align="left">Thao tác</th>
+              <th align="center">Thao tác</th>
             </tr>
           </thead>
           <tbody>
@@ -54,21 +83,25 @@ export default async function AdminPage() {
 
               return (
                 <tr key={loan.id}>
-                  <td>{book ? book.title : `Sách #${loan.bookId}`}</td>
+                  <td style={{ fontWeight: 600 }}>{book ? book.title : `Sách #${loan.bookId}`}</td>
                   <td>{formatDate(loan.pickupDate)}</td>
                   <td>{TERM_LABEL[loan.term]}</td>
-                  <td>{loan.userEmail}</td>
-                  <td style={{ display: 'flex', gap: '0.5rem' }}>
-                    <form action={approveAction}>
-                      <button type="submit" style={{ cursor: 'pointer', background: '#dcfce7', border: '1px solid #16a34a', color: '#166534', padding: '0.25rem 0.5rem' }}>
-                        Duyệt
-                      </button>
-                    </form>
-                    <form action={rejectAction}>
-                      <button type="submit" style={{ cursor: 'pointer', background: '#fee2e2', border: '1px solid #dc2626', color: '#991b1b', padding: '0.25rem 0.5rem' }}>
-                        Từ chối
-                      </button>
-                    </form>
+                  <td>
+                    <span style={{ color: '#475569' }}>{loan.userEmail}</span>
+                  </td>
+                  <td align="center">
+                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                      <form action={approveAction}>
+                        <button type="submit" className="btn-success-sm">
+                          Duyệt
+                        </button>
+                      </form>
+                      <form action={rejectAction}>
+                        <button type="submit" className="btn-danger-sm">
+                          Từ chối
+                        </button>
+                      </form>
+                    </div>
                   </td>
                 </tr>
               );

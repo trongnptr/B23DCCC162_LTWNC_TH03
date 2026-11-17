@@ -24,24 +24,22 @@ export function LoanForm({ books, defaultBookId, action }: LoanFormProps) {
   };
 
   const [state, formAction, isPending] = useActionState(action, initialState);
-
-  // Key để reset / dựng lại form theo đúng giá trị trả về
   const formKey = `${state.ok ? 'success' : 'state'}-${JSON.stringify(state.values)}-${state.message ?? ''}`;
 
   return (
-    <div style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid #ddd', borderRadius: '6px' }}>
+    <div className="card" style={{ marginBottom: '2rem' }}>
       <h2>Đăng ký mượn sách</h2>
 
       <form key={formKey} action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <div>
-          <label htmlFor="loan-bookId" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500 }}>
+        <div className="form-group">
+          <label htmlFor="loan-bookId" className="form-label">
             Sách
           </label>
           <select
             id="loan-bookId"
             name="bookId"
             defaultValue={state.values?.bookId ?? (defaultBookId ? String(defaultBookId) : '')}
-            style={{ width: '100%', padding: '0.5rem' }}
+            className="form-select"
           >
             <option value="">-- Chọn sách --</option>
             {books.map((b) => (
@@ -51,73 +49,75 @@ export function LoanForm({ books, defaultBookId, action }: LoanFormProps) {
             ))}
           </select>
           {state.errors?.bookId && (
-            <div role="alert" style={{ color: 'red', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+            <div role="alert" className="form-error">
               {state.errors.bookId}
             </div>
           )}
         </div>
 
-        <div>
-          <label htmlFor="loan-pickupDate" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500 }}>
-            Ngày lấy sách
-          </label>
-          <input
-            id="loan-pickupDate"
-            name="pickupDate"
-            type="date"
-            defaultValue={state.values?.pickupDate ?? ''}
-            style={{ width: '100%', padding: '0.5rem' }}
-          />
-          {state.errors?.pickupDate && (
-            <div role="alert" style={{ color: 'red', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-              {state.errors.pickupDate}
-            </div>
-          )}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+          <div className="form-group">
+            <label htmlFor="loan-pickupDate" className="form-label">
+              Ngày lấy sách
+            </label>
+            <input
+              id="loan-pickupDate"
+              name="pickupDate"
+              type="date"
+              defaultValue={state.values?.pickupDate ?? ''}
+              className="form-input"
+            />
+            {state.errors?.pickupDate && (
+              <div role="alert" className="form-error">
+                {state.errors.pickupDate}
+              </div>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="loan-term" className="form-label">
+              Thời hạn mượn
+            </label>
+            <select
+              id="loan-term"
+              name="term"
+              defaultValue={state.values?.term ?? ''}
+              className="form-select"
+            >
+              <option value="">-- Chọn thời hạn --</option>
+              <option value="7">{TERM_LABEL[7]}</option>
+              <option value="14">{TERM_LABEL[14]}</option>
+              <option value="30">{TERM_LABEL[30]}</option>
+            </select>
+            {state.errors?.term && (
+              <div role="alert" className="form-error">
+                {state.errors.term}
+              </div>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="loan-quantity" className="form-label">
+              Số quyển
+            </label>
+            <input
+              id="loan-quantity"
+              name="quantity"
+              type="number"
+              min={1}
+              defaultValue={state.values?.quantity ?? '1'}
+              className="form-input"
+            />
+            {state.errors?.quantity && (
+              <div role="alert" className="form-error">
+                {state.errors.quantity}
+              </div>
+            )}
+          </div>
         </div>
 
-        <div>
-          <label htmlFor="loan-term" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500 }}>
-            Thời hạn mượn
-          </label>
-          <select
-            id="loan-term"
-            name="term"
-            defaultValue={state.values?.term ?? ''}
-            style={{ width: '100%', padding: '0.5rem' }}
-          >
-            <option value="">-- Chọn thời hạn --</option>
-            <option value="7">{TERM_LABEL[7]}</option>
-            <option value="14">{TERM_LABEL[14]}</option>
-            <option value="30">{TERM_LABEL[30]}</option>
-          </select>
-          {state.errors?.term && (
-            <div role="alert" style={{ color: 'red', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-              {state.errors.term}
-            </div>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="loan-quantity" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500 }}>
-            Số quyển
-          </label>
-          <input
-            id="loan-quantity"
-            name="quantity"
-            type="number"
-            min={1}
-            defaultValue={state.values?.quantity ?? '1'}
-            style={{ width: '100%', padding: '0.5rem' }}
-          />
-          {state.errors?.quantity && (
-            <div role="alert" style={{ color: 'red', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-              {state.errors.quantity}
-            </div>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="loan-reason" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500 }}>
+        <div className="form-group">
+          <label htmlFor="loan-reason" className="form-label">
             Lý do mượn
           </label>
           <textarea
@@ -126,10 +126,10 @@ export function LoanForm({ books, defaultBookId, action }: LoanFormProps) {
             rows={3}
             defaultValue={state.values?.reason ?? ''}
             placeholder="Lý do mượn tối thiểu 10 ký tự..."
-            style={{ width: '100%', padding: '0.5rem' }}
+            className="form-textarea"
           />
           {state.errors?.reason && (
-            <div role="alert" style={{ color: 'red', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+            <div role="alert" className="form-error">
               {state.errors.reason}
             </div>
           )}
@@ -139,10 +139,13 @@ export function LoanForm({ books, defaultBookId, action }: LoanFormProps) {
           <div
             role="alert"
             style={{
-              padding: '0.75rem',
-              borderRadius: '4px',
-              color: state.ok ? '#15803d' : '#b91c1c',
-              background: state.ok ? '#dcfce7' : '#fee2e2',
+              padding: '0.85rem 1rem',
+              borderRadius: '6px',
+              fontWeight: 500,
+              fontSize: '0.9rem',
+              color: state.ok ? 'var(--success)' : 'var(--danger)',
+              background: state.ok ? 'var(--success-bg)' : 'var(--danger-bg)',
+              border: `1px solid ${state.ok ? '#bbf7d0' : '#fecaca'}`,
             }}
           >
             {state.message}
@@ -153,16 +156,9 @@ export function LoanForm({ books, defaultBookId, action }: LoanFormProps) {
           <button
             type="submit"
             disabled={isPending}
-            style={{
-              padding: '0.6rem 1.2rem',
-              cursor: isPending ? 'not-allowed' : 'pointer',
-              background: '#0284c7',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-            }}
+            className="btn-primary"
           >
-            Gửi yêu cầu
+            {isPending ? 'Đang gửi...' : 'Gửi yêu cầu'}
           </button>
         </div>
       </form>
